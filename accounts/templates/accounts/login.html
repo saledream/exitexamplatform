@@ -1,8 +1,11 @@
 
 {% extends 'accounts/index.html' %}
 {% load widget_tweaks %}
+{% load static %} 
 {% block content %} 
-<h1 class="text-center mt-5 text-primary">  <i class="fa fa-user-graduate fa-3x mx-1"></i> Login </h1>
+<h1 class="text-center mt-5 text-primary"> 
+    <img src="{% static 'assets/img/eepp_white_logo.png' %}" width="100px" class="rounded-circle" />
+ Login </h1>
    <div class="container mt-5">
     
     <form method="post" class="">

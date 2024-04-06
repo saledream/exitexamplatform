@@ -111,21 +111,20 @@ class TestExamModelAdmin(admin.ModelAdmin):
 admin.site.register(Test, TestExamModelAdmin)
 
 
-class ResultModelAdmin(admin.ModelAdmin):
-     list_display = ('student','exam','exam_type','score') 
-     model = ExamResult  
-     list_filter = ('student__username','exam__title')
-     search_fields = ('student','exam','exam_type','score')
-
-admin.site.register(ExamResult, ResultModelAdmin)
-
-
 class PageCompletionModelAdmin(admin.ModelAdmin):
      list_display = ('student','completed_page','module','course',"department","completed_date") 
      model = PageCompletion  
      list_filter = ('student__username','page__title')
      search_fields = ('student','page')
 
+     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+          
+          qs = super().get_queryset(request) 
+          if request.user.is_superuser or request.user.user_type == 'admin':
+               return qs
+          return  qs.filter(instructor=request.user)
+     
+     
 admin.site.register(PageCompletion, PageCompletionModelAdmin) 
 
 
@@ -216,9 +215,9 @@ admin.site.register(CourseProgress, CourseProgressModelAdmin)
 from .models import ExamStatus 
 
 class ExamStatusModelAdmin(admin.ModelAdmin):
-     list_display = ('student','department','question',"response","response_status","question_category","category_name")  
+     list_display = ('student','department','question_name',"response","response_status","question_category","category_name")  
      model = ExamStatus
-     list_filter = ('student__username','category_name','question_category') 
+     list_filter = ('student__username','category_name','question_category','department')  
      search_fields = ('student__username',) 
 
      def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:

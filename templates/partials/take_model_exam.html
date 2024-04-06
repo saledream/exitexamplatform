@@ -15,7 +15,7 @@
 
 {% block content %}
     {% if finished %}
-        {% include "partials/examstatusshow.html" %} 
+       {% include 'partials/examstatusshow.html' with model_id=model_id %} 
         
     {% else %}
             {% if question is not None %}
@@ -24,21 +24,23 @@
                         <h1> {{model_name}} </h1>
                     </div>
                     <div>  
-                         <span> {{next_id|add:1}}</span> / <span> {{total_q}}</span>
+                         <span> {{next_id|add:1}}</span> / <span> {{total_q}}</span>  <span class="badge  mx-3 {% if question.question_type == 'easy' %} bg-success {% elif question.question_type == 'medium' %} bg-warning {% else %} bg-error {% endif %} badge-pill"> {{question.question_type}}</span>
                         
                     </div> 
                     <div class="questions" x-data="{
-
+                        showButton: false, 
                         answer: '',
                         async request() {
                             url = 'take/exam/model/answer/{{model_id}}/{{next_id}}/' + this.answer + '/' 
                             req = await (await fetch(url)) 
+                            this.showButton = true 
                             console.log(req) 
                         },
-                    }">
+                    }">       
+                            
                             <div class="card-title d-flex align-items-center">
                                 <div>
-                                    <span class="badge rounded-pill bg-success">{{next_id|add:1}}</span>
+                                    <span class="badge rounded-pill bg-success">{{next_id|add:1}}</span> 
                                 </div>
                                 <div class="flex-grow-1 flex-shrink-1 mx-2 text-wrap">
                                     {{question.question|safe}} 
@@ -50,8 +52,8 @@
                                <p  class="card-text" > <input class="card-text" type="radio" @change="request" value="{{question.optionC_slug}}" x-model="answer"  name="choice">{{question.optionC}}</p>
                                <p  class="card-text" > <input class="card-text" type="radio" @change="request" value="{{question.optionD_slug}}" x-model="answer" name="choice">{{question.optionD}} </p>
                             </div>
-                            <p x-text="answer"></p>
-                            <button class="btn btn-primary" hx-get="take/exam/model/next_question/{{model_id}}/{{next_id}}/" hx-target="#submain"> Next </button>
+                            
+                            <button  x-show="showButton" class="btn btn-primary" hx-get="take/exam/model/next_question/{{model_id}}/{{next_id}}/" hx-target="#submain"> Next </button>
                     </div>   
                 </div>
 

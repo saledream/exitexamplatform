@@ -25,7 +25,8 @@
   <!-- Preloader -->
   <div class="preloader flex-column justify-content-center align-items-center">
     <!-- <img class="animation__wobble" src="{% static 'dist/img/AdminLTELogo.png' %}" alt="AdminLTELogo" height="60" width="60"> -->
-    <i class="fa fa-user-graduate fa-10x animation__wobble" style="color: #B197FC;">
+    <img src="{% static 'assets/img/eepp_white_logo.png' %}" class="rounded-circle animation__wobble" /> 
+    <!-- <i class="fa fa-user-graduate fa-10x animation__wobble" style="color: #B197FC;"> -->
          
     </i>
   </div>
@@ -66,28 +67,26 @@
   </nav>
 
   <!-- Main Sidebar Container -->
-  <aside class="main-sidebar elevation-4 "  >
+  <aside class="main-sidebar elevation-4 sidebar-dark-primary" >
     <!-- Brand Logo -->
-    <div class="image" hx-get="/accounts/profile/{{request.user.username}}/" hx-target="#submain" hx-trigger="click">
+    <div class="d-flex flex-column justify-content-center align-items-center mt-2 " style="cursor:pointer;" hx-get="/accounts/profile/{{request.user.username}}/" hx-target="#submain" hx-trigger="click">
       {% if request.user.avtar %}
-          <img src="{{request.user.avtar.url }}" width="160px" class="img-circle elevation-2" alt="User Image">
+          <img src="{{request.user.avtar.url }}" width="100px" height="90" class="img-circle elevation-2" alt="User Image">
       {% else %}
         <a href="#">  
          <i class="fa fa-user-graduate fa-4x mr-2" style="color: #B197FC;"></i>
-        <span class="brand-text font-weight-light"> {{request.user.username}} </span>
+       
         </a>
       {% endif %}
-     </div>
-     
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <!-- Sidebar user panel (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        
+      <div>
+        <span class="font-weight-light"> {{request.user.username}} </span>
       </div>
+     
+     </div>
+ <!-- Sidebar -->
+    <div class="sidebar mt-0">   
       <!-- Sidebar Menu -->
-      <nav class="mt-2">
+      <nav>
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
@@ -151,7 +150,14 @@
                 </a>
               </li>
             </ul>
+
             </li> 
+            <li class="nav-item" hx-get="/students/fetch/myresult/" hx-trigger="click" hx-target="#submain">
+              <a href="#" class="nav-link">
+                <i class="nav-icon fas "></i>
+                <p>My result   </p>
+              </a>
+            </li>
             </ul>
       </nav>
       <!-- /.sidebar-menu -->

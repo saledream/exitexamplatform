@@ -14,39 +14,40 @@ class CustomUserAdmin(UserAdmin):
       model = User
       list_filter = ("user_type", 'department')
       add_fieldsets = (
-         (None, {"fields": (
+         (None, {
+             "classes": ("wide",),
+             "fields": (
                  "email", 'username', "password1", "password2",'department', 
                  'user_type', "groups", "user_permissions",
-             )},
-              ('Personal Info',{'fields':('first_name','last_name','bio','avtar')}),
-             ("Permissions", {"fields": ("is_active","is_staff", "groups", "user_permissions")}),
-            ('Important Dates', {'fields':('joined_date')})
+             )}
          ),
      )
       search_fields = ("email",'username','department')
       ordering = ("email",)
-      
-    #   def get_fieldsets(self, request, obj=None):
-            
-    #         if request.user.user_type == 'admin' or request.user.is_superuser:
-        
-    #                 return (
-    #                     (None, {"fields": ("email", 'username',"password",'user_type')}),
-    #                     ('Personal Info',{'fields':('first_name','last_name','bio','avtar')}),
-    #                     ("Permissions", {"fields": ("is_active","is_staff", "groups", "user_permissions")}),
-    #                     ('Important Dates', {'fields':('joined_date')})
-    #                     )
-    #         elif request.user.user_type == 'instructor':
+      readonly_fields = ['last_seen','joined_date']
 
-    #                  return (
-    #                        ('Personal Info',{'fields':('first_name','last_name','bio','avtar')}),
-    #                  ) 
+      def get_fieldsets(self, request, obj=None):
+            
+            if request.user.user_type == 'admin' or request.user.is_superuser:
+        
+                    return (
+                        (None, {"fields": ("email", 'username',"password",'department','user_type')}),
+                        ('Personal Info',{'fields':('first_name','last_name','bio','avtar')}),
+                        ("Permissions", {"fields": ("is_active","is_staff", "groups", "user_permissions")}),
+                        ('Important Dates', {'fields':('last_seen','joined_date')})
+                        )
+            elif request.user.user_type == 'instructor':
+
+                     return (
+                           ('Personal Info',{'fields':('first_name','last_name','bio','avtar')}),
+                     ) 
                    
-    #         else:
-    #                return (
-    #                    (None, {"fields": ("email", 'username',"password",'department','user_type')}),
-    #                     ('Personal Info',{'fields':('first_name','last_name','bio','avtar')})
-    #                 )
+              
+            else:
+                   return (
+                       (None, {"fields": ("email", 'username',"password",'department','user_type')}),
+                        ('Personal Info',{'fields':('first_name','last_name','bio','avtar')})
+                    )
             
       def get_form(self, request,obj=None, **kwargs):
             
@@ -67,7 +68,6 @@ class CustomUserAdmin(UserAdmin):
                             form.base_fields[f].disabled = True 
 
             return form 
-      
       def get_readonly_fields(self, request: HttpRequest, obj: Any | None = ...) -> list[str] | tuple[Any, ...]:
             
 
@@ -79,7 +79,8 @@ class CustomUserAdmin(UserAdmin):
                kwargs['queryset'] = User.objects.filter(username=request.user) 
 
           return super().formfield_for_foreignkey(db_field, request, **kwargs)
-      
+
+            
 admin.site.register(User, CustomUserAdmin)
 
 

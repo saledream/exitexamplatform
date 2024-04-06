@@ -1,0 +1,49 @@
+{% extends 'partials/partial_base.html' %}
+
+{% block crumbs %} 
+   <li class="breadcrumb-item active" onMouseOver="this.style.textDecoration='underline';this.style.color='#00F'" onMouseOut="this.style.textDecoration='none';this.style.color='#1a2c35'"
+  role="button">  &rsaquo; results </li>
+{% endblock %}
+
+{% block title %} 
+    Exam Result 
+{% endblock %} 
+
+
+{% block content %}   
+    <div class="row">
+        <div class="col-12">
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Exam Title</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Total Marks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for key, values in models.items %}
+                  <tr>
+                    <td>{{key}}</td>
+                    <td>{{values.0}}</td>
+                    <td>{{values.1}}</td> 
+                  </tr>
+                {% empty %}
+                  You don't take any exam yet 
+                {% endfor %}
+
+                {% for key, values in tests.items %}
+                <tr>
+                  <td>{{key}}</td>
+                  <td>{{values.0}}</td>
+                  <td>{{values.1}}</td> 
+                </tr>
+              {% endfor %}
+                </tbody>
+              </table>
+
+        </div>
+        
+      
+    </div>
+{% endblock %}

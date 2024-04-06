@@ -129,14 +129,14 @@ def check_password(request):
       password = request.POST.get('password1')
 
      
-      if (re.search(digit, password) and re.search(upper,password) and re.search(lower,password) and len(password) > 8) or (len(password) > 10):
-          return HttpResponse(progress_bar%(100,'Strong password'))  
+      if (re.search(digit, password) and re.search(upper,password) and re.search(lower,password) and len(password) >= 8) or (len(password) >= 10):
+          return HttpResponse("<div style='color:green'> strong password </div>")  
       
-      elif ((re.search(digit, password) or re.search(upper,password)) or (re.search(lower,password) or re.search(upper,password)) or (re.search(digit,password) or re.search(lower,password))) and len(password) > 8:
-           return HttpResponse("<div> Medium </div>") 
+      elif ((re.search(digit, password) or re.search(upper,password)) or (re.search(lower,password) or re.search(upper,password)) or (re.search(digit,password) or re.search(lower,password))) and len(password) >= 8:
+           return HttpResponse("<div style='color:orange'> medium </div>") 
       
       else:
-           return HttpResponse("<div> Weak password</div>") 
+           return HttpResponse("<div style='color:red'> Weak password </div>") 
 
 def check_email(request):
       regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'

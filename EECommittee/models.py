@@ -108,5 +108,16 @@ class Course(models.Model):
     department = property(_get_department) 
 
 
+
+class Comment(models.Model):
+
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    subject = models.CharField(max_length=255) 
+    message = models.TextField() 
+
+    def __str__(self):
+        return self.subject 
+    
     
 

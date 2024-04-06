@@ -249,10 +249,15 @@ class ModelQuestion(models.Model):
       ans_description = models.TextField()
       question_type = models.CharField(max_length=255, choices=q_type_opions) 
       
+      def __str__(self):
+          return mark_safe(self.question)
+      
       def save(self, *args, **kwargs):
 
 
         self.question = format_html(self.question) 
+        print(self.question)
+
         self.optionA_slug = slugify(self.optionA) 
         self.optionB_slug = slugify(self.optionB) 
         self.optionC_slug = slugify(self.optionC) 
@@ -328,7 +333,7 @@ class TestQuestion(models.Model):
             super().save(*args,**kwargs)
 
       def __str__(self):
-            return self.question  
+            return mark_safe(self.question)   
     
       def question_field(self):
             text = ""
@@ -368,6 +373,13 @@ class ExamStatus(models.Model):
  category_name     = models.CharField(max_length=255) 
  department = models.ForeignKey(Department, on_delete=models.CASCADE,related_name="examstatus")
 
+ def __str__(self):
+     return mark_safe(self.question)
+
+ def _get_question(self):
+     return mark_safe(self.question) 
+
+ question_name = property(_get_question)
 
  def save(self,*args,**kwargs):
      
@@ -381,9 +393,9 @@ class ExamStatus(models.Model):
      
      try:
         self.category_name = self.question.testExam.title
-        self.question_catefory = "test"
+        self.question_category = "test"
      except AttributeError:
-        self.question_catefory = 'model' 
+        self.question_category = 'model' 
         self.category_name = self.question.modeExam.title
      
      super().save(*args,**kwargs)

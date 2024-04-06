@@ -1,0 +1,25 @@
+<p>Result: {{result}}/{{total_q}}</p>
+{% for question in questions %} 
+    <div class="d-flex flex-column border-bottom border-secondary p-1"> 
+        <details onMouseOver="this.style.background='gray';this.style.color='#FFF'" onMouseOut="this.style.background='white';this.style.color='#000'"> 
+            <summary>{{question}}</summary>
+            <div class="card-body">
+                <div class="d-flex flex-column">
+                   <span class="badge badge-primary badge-pill"> Correct Answer</span>  
+                    <p class="col-8">{{question.question.answer}} </p>  
+                </div> 
+                <div class="d-flex flex-column">
+                    <p><span class="badge badge-primary badge-pill">Your Response </span>  <span> {% if question.question.answer == question.response %} <i class="fa fa-check text-success  ml-2 fa-3x" style="color: green;"></i>{% else %} <i class="fa fa-times text-error  ml-2 fa-3x" style="color: red;"></i> {% endif %} </span> </p>
+                    <p class="col-8">{{question.response}}</p>
+                </div>
+                <div>
+                    <p><span class="badge badge-primary badge-pill">description </span>
+                    <p class="card-text">
+                        {{question.question.ans_description}} 
+                      </p>
+                </div>
+            
+          </details>
+    </div>  
+    
+{% endfor %} 

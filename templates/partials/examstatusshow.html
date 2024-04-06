@@ -1,1 +1,16 @@
-<p> Hello, {{request.user.username}}</p>
+
+{% extends 'partials/partial_base.html' %} 
+
+
+
+
+{% block content %}
+         
+    <div hx-trigger="load" hx-get="examresult/{{model_id}}/" hx-target="#detail"> 
+
+    </div>  
+    <div id="detail" class="d-flex flex-column col-12">  
+    
+    </div>
+
+{% endblock %} 

@@ -362,18 +362,6 @@ def exam_model_answer(request,model_id,q_id,slug):
         except IndexError:
              q = None 
       
-
-     #    if  slugify(q.answer)  == slug:
-             
-     #         try:
-              
-     #           result = ExamResult.objects.get(exam=model,student=request.user)
-     #           result.score += 1 
-     #           result.save() 
-
-     #         except ExamResult.DoesNotExist:
-     #              result = ExamResult.objects.create(exam=model,student=request.user,exam_type="model",score=1) 
-     #              result.save() 
         try:
              
           examstatus = ExamStatus.objects.get(student=request.user,question=q)
@@ -387,7 +375,7 @@ def exam_model_answer(request,model_id,q_id,slug):
         return JsonResponse({"save":True}) 
 
 def exam_model_next_question(request, model_id,q_id):
-    
+     
      models = Exam_Model.objects.filter(dept=request.user.department)
      model = models.get(id=model_id)
      next_id = q_id + 1 
@@ -475,4 +463,94 @@ def tests(request):
            return render(request,"partials/static_data.html",{"data":user_test})
      
      return render(request,"partials/static_data.html",{"data":user_test.count()})
+
+
+def examresult(request, exam_id):
+     questions = []
+     result = 0
+     model_q = None 
+     test_q = None 
+
+     try:
+          test_q = Test.objects.get(id=exam_id)
+
+     except Exam_Model.DoesNotExist:
+          model_q = Exam_Model.objects.get(id=exam_id) 
+
+
+     user_exam_status= ExamStatus.objects.filter(student=request.user)
+
+     for q in user_exam_status:
+         if model_q is not None:
+               if q.question_category == 'model' and q.category_name == model_q.title and q.question in model_q.question.all():
+                    
+                    if q.response_status == 'correct':
+                         result += 1
+               
+                    questions.append(q) 
+         else:
+              if q.question_category == 'test' and q.category_name == test_q.title and q.question in test_q.questions.all():
+                   if q.response_status == 'correct':
+                         result += 1
+
+                   questions.append(q) 
+                   
+     if model_q is not None:
+          total_q = model_q.question.all().count() 
+
+     else:
+          total_q = test_q.question.all().count()                    
+
+     return render(request, "partials/exam_detail.html", {"result":result,"total_q":total_q, "questions":questions}) 
+
+
+def myresult(request):
+    models = {}
+    tests = {}
+    model_result= {}
+    test_result = {}
+
+    user_exam_status = ExamStatus.objects.filter(student=request.user)
+    
+    for status in user_exam_status:
+       try:
+           if status.question.modeExam.title not in models:
+                 models[status.question.modeExam.title] = [status]
+
+           else:
+            
+               models[status.question.modeExam.title].append(status)
+
+       except Exception as e:
+            if status.question.testExam.title not in tests:
+                 tests[status.question.testExam.title] = [status] 
+
+            else:
+                 tests[status.question.testExam.title].append(status) 
+
+    for key,values in models.items():
+         for question in values:
+             if  key not in model_result:
+                     model_result[key] =[0,len(models[key])] 
+
+             if question.response_status == "correct":
+                  model_result[key][0] += 1   
+
+    for key,values in tests.items(): 
+         for question in values:
+              if key not in test_result:
+                   test_result[key] = [0, len(tests[key])] 
+
+              if question.response_status == 'correct':
+                   test_result[key][0] += 1
+
+    print(test_result)  
+    print(model_result) 
+
+
+    return render(request,"partials/examresult.html",{'tests':test_result,'models':model_result}) 
+
+
+
+     
 

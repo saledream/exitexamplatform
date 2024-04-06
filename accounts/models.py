@@ -7,7 +7,6 @@ from django.forms import ModelForm
 from .manager import CustomUserManager
 from EECommittee.models import Department 
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     USER_TYPE_CHOICES = (
         ('student','Student'),
@@ -25,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-  
+   
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['username']
 
@@ -68,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     completed_course = property(_get_course_progress) 
     
     
-    
+        
 class SuperUserForm(ModelForm):
 
     class Meta:

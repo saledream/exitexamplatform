@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Department, Course 
+from .models import Department, Course, Comment  
 # from django.contrib.auth.admin impor
 # Register your models here.
 from accounts.models import User 
@@ -33,3 +33,4 @@ class CourseModelAdmin(admin.ModelAdmin):
           return  qs.filter(instructor=request.user)
         
 admin.site.register(Course, CourseModelAdmin) 
+

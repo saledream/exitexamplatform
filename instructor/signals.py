@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete 
 from django.dispatch import receiver 
-from .models import CourseProgress, PageCompletion 
+from .models import CourseProgress, PageCompletion, ExamStatus  
 from .models import Page 
 
 
@@ -164,3 +164,4 @@ def calculate_course_progress_percentage(sender, instance, created,**kwargs):
             print("something!!!!!!!!!!!!")
 
        print(" show me something!!!!!!!!!!!!")
+
