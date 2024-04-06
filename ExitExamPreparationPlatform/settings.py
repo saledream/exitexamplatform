@@ -29,7 +29,7 @@ SECRET_KEY = '$y!twcer$50u#pd4#82as0=^8e30=rnjoqggh@n%_^$v&u!_=5'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost','eepp.pythonanywhere.com'] 
 
 
 # Application definition
@@ -167,6 +167,8 @@ EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_PASSWORD'))
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',
+        'height': '100%',
+        'width': '100%',
     },
 }
 
@@ -174,3 +176,5 @@ IMAGEFIT_ROOT = "media"
 
 # EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 # EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
+
+
