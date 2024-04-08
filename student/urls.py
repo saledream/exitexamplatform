@@ -28,7 +28,7 @@ urlpatterns =[
     path("cppages/", views.cppages, name="cp_pages"),
     path("questions/", views.questions, name="questions"), 
     path("tests/",views.tests, name="test"), 
-    path("examresult/<int:model_id>/", views.examresult, name="examresult"), 
+    path("examresult/<int:exam_id>/", views.examresult, name="examresult"), 
     path("fetch/myresult/", views.myresult, name="myresult"), 
 
 ]

@@ -474,7 +474,7 @@ def examresult(request, exam_id):
      try:
           test_q = Test.objects.get(id=exam_id)
 
-     except Exam_Model.DoesNotExist:
+     except Test.DoesNotExist:
           model_q = Exam_Model.objects.get(id=exam_id) 
 
 
