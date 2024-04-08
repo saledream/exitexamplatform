@@ -15,7 +15,8 @@ import os
 import sys 
 from dotenv import load_dotenv 
 load_dotenv() 
-from django.core.management.utils import get_random_secret_key 
+from django.core.management.utils import get_random_secret_key
+
 import dj_database_url 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,13 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY", get_random_secret_key()) 
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key()) 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True' 
+DEBUG = True 
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
-DEVELOPMENT_MODE = os.getenv('DEVELOPMENT_MODE', 'False') == 'True' 
+ALLOWED_HOSTS =  ['*'] 
+
+DEVELOPMENT_MODE = True 
 
 
 # Application definition
@@ -74,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
+     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ExitExamPreparationPlatform.urls'
@@ -115,7 +118,16 @@ elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
      DATABASES = {
              "default": dj_database_url.parse(os.environ.get('DATABASE_URL')), 
      }
+     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+     # and renames the files with unique names for each version to support long-term caching
+     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+DATABASES = {
+             "default": dj_database_url.parse(os.getenv('DATABASE_URL')), 
+     }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
