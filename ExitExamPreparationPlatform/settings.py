@@ -125,9 +125,9 @@ elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
      STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-DATABASES = {
-             "default": dj_database_url.parse(os.getenv('DATABASE_URL')), 
-     }
+# DATABASES = {
+#              "default": dj_database_url.parse(os.getenv('DATABASE_URL')), 
+#      }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
