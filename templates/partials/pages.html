@@ -1,18 +1,20 @@
 {% extends "partials/partial_base.html" %} 
 
 {% block crumbs %} 
-<li class="breadcrumb-item" onMouseOver="this.style.textDecoration='underline';this.style.color='#00F'" onMouseOut="this.style.textDecoration='none';this.style.color='#FFF'"
+<li class="breadcrumb-item" onMouseOver="this.style.textDecoration='underline';this.style.color='#00F'" onMouseOut="this.style.textDecoration='none';this.style.color='#blue'"
 role="button" hx-get="fetch/course/{{course_id}}/"  hx-trigger="click" hx-target="#submain">modules</li>
-<li class="breadcrumb-item active" onMouseOver="this.style.textDecoration='underline';this.style.color='#00F'" onMouseOut="this.style.textDecoration='none';this.style.color='#FFF'"
+<li class="breadcrumb-item active" onMouseOver="this.style.textDecoration='underline';this.style.color='#00F'" onMouseOut="this.style.textDecoration='none';this.style.color='blue'"
 role="button"hx-get="{{url}}{{course_id}}/"  hx-trigger="click" hx-target="#submain"> {% if title %} &rsaquo; {{ title }}{% endif %}</li>
 {% endblock %} 
-
+{% block title %} 
+   pages 
+{% endblock %}
 {% block content %}
-   <div class="note col-12 col-sm-12 col-lg-9">
+   <div class="note col-12 col-sm-12 col-lg-9" style="overflow:scroll">
       <div class="container">
             <h1 class="font-weight-bold"> {{module.name}}</h1>
       </div>
-      <div class="scrollable">
+      <div class="scrollable container">
          <p class="card-title"> Module summary</p> 
          <hr class="bg-white">
          <div class="card-body">
@@ -21,10 +23,16 @@ role="button"hx-get="{{url}}{{course_id}}/"  hx-trigger="click" hx-target="#subm
       </div>
    </div>
 
-   <div class="pages col-sm-12 col-lg-3">
+   <div class="pages col-sm-12 col-lg-3" x-data="{
+      click: true,
+      clicked() {
+            this.click =!
+      },
+
+   }">
       {% for page in module.pages.all %} 
-         <ul class="list-group list-group-flush">
-            <li class="list-group-item" hx-get="fetch/pages/{{page.id}}/" hx-trigger="click" hx-target=".note">{{page.title}}</li> 
+         <ul class="list-group list-group-flush" id="pages"> 
+            <li class="list-group-item " @click="this.style.background='oranged'" hx-get="fetch/pages/{{page.id}}/" hx-trigger="click" hx-target=".note">{{page.title}}</li> 
          </ul>
       {% empty %}
          <span> No pages  </span>

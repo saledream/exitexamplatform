@@ -1,0 +1,17 @@
+
+.pages {
+    background-color: #1a2c35;
+    
+}
+#pages li {
+   background-color: #1a2c35;
+}
+#pages li {
+    color: white;
+}
+
+
+#pages li:hover {
+    background-color: orangered;
+    font-weight: bold; 
+}

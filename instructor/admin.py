@@ -122,12 +122,12 @@ class PageCompletionModelAdmin(admin.ModelAdmin):
           qs = super().get_queryset(request) 
           if request.user.is_superuser or request.user.user_type == 'admin':
                return qs
-          return  qs.filter(instructor=request.user)
+          
+
+          return qs  
      
      
 admin.site.register(PageCompletion, PageCompletionModelAdmin) 
-
-
 
 class ModelQuestionModelAdmin(admin.ModelAdmin):
      list_display = ('instructor','question_field','answer_field','ans_description_field') 
@@ -161,21 +161,14 @@ class TestQuestionModelAdmin(admin.ModelAdmin):
      model = TestQuestion 
      list_filter = ('instructor__username','testExam__title')
      search_fields = ('instructor',) 
-
+     exclude = ["optionA_slug","optionB_slug","optionC_slug","optionD_slug"]
+     
      def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
           
           qs = super().get_queryset(request) 
           if request.user.is_superuser:
                return qs
           return  qs.filter(instructor=request.user)
-     
-     def get_form(self, request,obj=None, **kwargs):
-            print("object ............")
-            print(obj) 
-            form = super(TestQuestionModelAdmin,self).get_form(request,obj,**kwargs) 
-            
-            return form 
-
      
      def formfield_for_foreignkey(self, db_field: ForeignKey[Any], request: HttpRequest | None, **kwargs: Any) -> ModelChoiceField | None:
           
@@ -199,7 +192,7 @@ class CourseProgressModelAdmin(admin.ModelAdmin):
           qs = super().get_queryset(request) 
           if request.user.is_superuser:
                return qs
-          return  qs 
+          return  qs.filter(course=request.user.courses.all()[0]) 
      
      
      def formfield_for_foreignkey(self, db_field: ForeignKey[Any], request: HttpRequest | None, **kwargs: Any) -> ModelChoiceField | None:
@@ -212,11 +205,11 @@ class CourseProgressModelAdmin(admin.ModelAdmin):
           return super().formfield_for_foreignkey(db_field, request, **kwargs)
      
 admin.site.register(CourseProgress, CourseProgressModelAdmin) 
-from .models import ExamStatus 
+from .models import ModelExamStatus 
 
-class ExamStatusModelAdmin(admin.ModelAdmin):
+class ModelExamStatusModelAdmin(admin.ModelAdmin):
      list_display = ('student','department','question_name',"response","response_status","question_category","category_name")  
-     model = ExamStatus
+     model = ModelExamStatus
      list_filter = ('student__username','category_name','question_category','department')  
      search_fields = ('student__username',) 
 
@@ -237,11 +230,80 @@ class ExamStatusModelAdmin(admin.ModelAdmin):
 
           return super().formfield_for_foreignkey(db_field, request, **kwargs)
      
-admin.site.register(ExamStatus, ExamStatusModelAdmin) 
+admin.site.register(ModelExamStatus, ModelExamStatusModelAdmin) 
+from instructor.models import TestExamStatus
 
+class TestExamStatusModelAdmin(admin.ModelAdmin):
+     list_display = ('student','department','question_name',"response","response_status","question_category","category_name")  
+     model = TestExamStatus
+     list_filter = ('student__username','category_name','question_category','department')  
+     search_fields = ('student__username',) 
 
+     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+          
+          qs = super().get_queryset(request) 
+          if request.user.is_superuser:
+               return qs
+          return  qs.filter(department=request.user.department) 
+     
+     
+     def formfield_for_foreignkey(self, db_field: ForeignKey[Any], request: HttpRequest | None, **kwargs: Any) -> ModelChoiceField | None:
+          
+          if db_field.name == 'course':
+               kwargs['queryset'] = request.user.courses   
+          if db_field.name == 'testExam':
+               kwargs['queryset'] = Test.objects.filter(instructor=request.user) 
 
+          return super().formfield_for_foreignkey(db_field, request, **kwargs)
+     
+admin.site.register(TestExamStatus, TestExamStatusModelAdmin) 
 
+class StudentExamResultAdminModel(admin.ModelAdmin):
+    
+     list_display = ("student",'exam_name','score','total_mark',"exam_type")  
+     model = ExamResult
+     list_filter = ('student__username','exam_name','exam_type')  
+     search_fields = ('student__username',) 
 
+     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
+          
 
+         
+          if request.user.is_superuser:
+               model_exam_status = ModelExamStatus.objects.filter(department=request.user.department)
+               dept_student = {}
+               model_result = [] 
+              
+               for student in User.objects.filter(user_type='student',department=request.user.department):
+                    dept_student[student.username] = [student,0,None,0]
 
+                              
+               for  status in model_exam_status:
+                    for stud in dept_student:
+                         if status.student.username == dept_student[stud][0].username and status.response == 'correct':
+                              dept_student[student.username][1] += 1
+                              dept_student[student.username][2] =  status.question.modeExam.title
+                              dept_student[student.username][3] =  status.question.modeExam.question.all().count() 
+
+                               
+
+               for std in dept_student:
+                    
+                    if dept_student[std][2] is not None:
+
+                         ExamResult(student=dept_student[std][0],score=dept_student[std][1], exam_name=dept_student[std][2], exam_type="model",total_mark=dept_student[std][3]).save()               
+                             
+          qs = super().get_queryset(request) 
+          return  qs 
+     
+     
+     def formfield_for_foreignkey(self, db_field: ForeignKey[Any], request: HttpRequest | None, **kwargs: Any) -> ModelChoiceField | None:
+          
+          if db_field.name == 'course':
+               kwargs['queryset'] = request.user.courses   
+          if db_field.name == 'testExam':
+               kwargs['queryset'] = Test.objects.filter(instructor=request.user) 
+
+          return super().formfield_for_foreignkey(db_field, request, **kwargs)
+     
+admin.site.register(ExamResult, StudentExamResultAdminModel)  

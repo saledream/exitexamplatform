@@ -29,6 +29,7 @@ urlpatterns =[
     path("questions/", views.questions, name="questions"), 
     path("tests/",views.tests, name="test"), 
     path("examresult/<int:exam_id>/", views.examresult, name="examresult"), 
+    path("testexamresult/<int:test_id>/", views.testexamresult, name="testresult"), 
     path("fetch/myresult/", views.myresult, name="myresult"), 
 
 ]

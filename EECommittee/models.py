@@ -9,6 +9,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save 
 from django.template.defaultfilters import slugify 
 from django.utils.html import format_html 
+from ckeditor_uploader.fields import RichTextUploadingField 
 
 User = settings.AUTH_USER_MODEL 
 
@@ -56,7 +57,7 @@ class Department(models.Model):
 class Course(models.Model):
     name = models.CharField(max_length=255) 
     dept = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="courses") 
-    description = models.TextField() 
+    description =RichTextUploadingField()
     image = models.ImageField(upload_to="course_images") 
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses") 
     slug = models.SlugField(null=True, unique=True)  

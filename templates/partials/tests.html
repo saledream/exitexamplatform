@@ -3,9 +3,9 @@
   <div class="row">
       {% for test, name,q in tests %}
               
-      <div class="card1 col-lg-3 col-12 mx-2 col-md-5 my-3 position-relative" style="width: 18rem;" hx-get="take/exam/test/{{test.id}}/" hx-trigger="click" hx-target="#submain">
+      <div class="card1 col-lg-3 col-12 mx-2 col-md-5 my-3 position-relative"  hx-get="take/exam/test/{{test.id}}/" hx-trigger="click" hx-target="#submain">
          <div class="card-body">
-            <p class="card-text text-orange font-weight-bold">{{test.title}}  <span class="badge fs-6 badge-primary badge-pill">  {{name}} </span>  </p> 
+            <p class="card-text text-orange font-weight-bold">{{test.title}}  <span class="text-wrap badge fs-6 badge-primary badge-pill">  {{name}} </span>  </p> 
             
             <div>
                <span>{{test.question.all.count|default:0}} questions </span> 

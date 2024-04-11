@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse  
 from instructor.models import CourseProgress 
 from django.template.defaultfilters import slugify 
-from instructor.models import ExamResult, ExamStatus   
+from instructor.models import ExamResult, ModelExamStatus, TestExamStatus    
 from django.contrib import messages 
 
 # Create your views here.
@@ -52,13 +52,14 @@ def fetch(request):
                 "easy":easy
                }])
            
-          #  tests.append(c_tests)
-      
+           #  tests.append(c_tests)
+               print(test.test.all().count())  
+               print(dir(test.test)) 
       courses_progress= [] 
       for course in courses:
            try:
               
-              cp = CourseProgress.objects.get(course=course)
+              cp = CourseProgress.objects.get(course=course, student=request.user)
               progress = cp.progress 
 
            except CourseProgress.DoesNotExist:
@@ -113,10 +114,12 @@ def get_course(request,pk):
       try:
          course = Course.objects.get(id=pk)
          modules = course.modules.all() 
+         print(dir(course))
+         print(course.description) 
       except Course.DoesNotExist as e:
           pass 
-
-      return render(request,"partials/modules.html",{'modules':modules,"url":onclick_url,"title":nav_title,"course_id":pk}) 
+       
+      return render(request,"partials/modules.html",{'modules':modules,"url":onclick_url,"title":nav_title,"course_id":pk,'course':course}) 
        
 @login_required
 def get_module(request,pk,course_id=None): 
@@ -206,7 +209,7 @@ def take_test_exam(request,test_id):
              q = None 
              next_id = 0 
          
-        return render(request, "partials/take_test_exam.html",{'question':q,'next_id':next_id,"title":test.title,"total_q":total_q})
+        return render(request, "partials/take_test_exam.html",{'question':q,'next_id':next_id,"title":test.title,"total_q":total_q,"test_id":test_id})
 
 def course_tests(request, slug):
        
@@ -249,41 +252,48 @@ def course_tests(request, slug):
        return render(request,"partials/tests.html",{"tests":tests})
 
 def exam_test_answer(request, test_id,q_id,slug):
-        
-        test = Test.objects.get(id=test_id)  
-        try:
-           q = test.test.all()[q_id]  
+        q = None 
 
-        except IndexError:
+        try:
+           test = Test.objects.get(id=test_id) 
+           q = test.test.all()[q_id]   
+           print(q) 
+
+        except (Test.DoesNotExist, IndexError):
              q = None 
-  
+     
         try:
              
-          examstatus = ExamStatus.objects.get(student=request.user,question=q)
+          print("okayyy")
+          examstatus = TestExamStatus.objects.get(student=request.user,question=q)
+          print(examstatus) 
+
           examstatus.response = slug
           examstatus.save() 
 
-        except ExamStatus.DoesNotExist:
-            examstatus = ExamStatus(student=request.user,question=q,response = slug)
+        except TestExamStatus.DoesNotExist:
+            examstatus = TestExamStatus(student=request.user,question=q,response = slug)
             examstatus.save() 
 
         return JsonResponse({"save":True}) 
 
 def exam_test_next_question(request, test_id,q_id):
-     test = Test.objects.get(id=test_id)
+     
      next_id = q_id + 1 
      q = None 
      finished = False  
-
+     total_q = 0 
+     title = '' 
      try:
+          test = Test.objects.get(id=test_id)
           q = test.test.all()[next_id]
-
-     except IndexError as e: 
-          print(e)
+          total_q = test.test.all().count() 
+          title = test.title 
+     except Exception as e:
           q = None 
           finished = True 
-     
-     return render(request, "partials/take_test_exam.html",{"question":q, "test_id":test_id,"next_id":next_id,"finished":finished}) 
+          
+     return render(request, "partials/take_test_exam.html",{"question":q, "test_id":test_id,"next_id":next_id,"finished":finished,'total_q':total_q,'title':title}) 
 
 def get_models(request,id):
      
@@ -364,12 +374,12 @@ def exam_model_answer(request,model_id,q_id,slug):
       
         try:
              
-          examstatus = ExamStatus.objects.get(student=request.user,question=q)
+          examstatus = ModelExamStatus.objects.get(student=request.user,question=q)
           examstatus.response = slug
           examstatus.save() 
 
-        except ExamStatus.DoesNotExist:
-            examstatus = ExamStatus(student=request.user,question=q,response = slug)
+        except ModelExamStatus.DoesNotExist:
+            examstatus = ModelExamStatus(student=request.user,question=q,response = slug)
             examstatus.save() 
         print("show something!!!!!!!!")
         return JsonResponse({"save":True}) 
@@ -465,6 +475,33 @@ def tests(request):
      return render(request,"partials/static_data.html",{"data":user_test.count()})
 
 
+def testexamresult(request, test_id):
+     questions = []
+     result = 0
+     test_q = None 
+     total_q = 0  
+
+     try:
+          test_q = Test.objects.get(id=test_id)
+
+     except Test.DoesNotExist:
+         pass
+
+     user_exam_status= TestExamStatus.objects.filter(student=request.user)
+
+     for q in user_exam_status:
+          if q.question_category == 'test' and q.category_name == test_q.title and q.question in test_q.test.all():
+               
+               if q.response_status == 'correct':
+                    result += 1
+          
+               questions.append(q) 
+     
+     total_q = test_q.test.all().count()  
+
+                  
+     return render(request, "partials/exam_detail.html", {"result":result,"total_q":total_q, "questions":questions}) 
+
 def examresult(request, exam_id):
      questions = []
      result = 0
@@ -478,7 +515,7 @@ def examresult(request, exam_id):
           model_q = Exam_Model.objects.get(id=exam_id) 
 
 
-     user_exam_status= ExamStatus.objects.filter(student=request.user)
+     user_exam_status= ModelExamStatus.objects.filter(student=request.user)
 
      for q in user_exam_status:
          if model_q is not None:
@@ -510,10 +547,18 @@ def myresult(request):
     model_result= {}
     test_result = {}
 
-    user_exam_status = ExamStatus.objects.filter(student=request.user)
-    
-    for status in user_exam_status:
-       try:
+    model_exam_status = ModelExamStatus.objects.filter(student=request.user)
+    test_exam_status = TestExamStatus.objects.filter(student=request.user) 
+
+    for status in test_exam_status:
+            if status.question.testExam.title not in tests:
+                 tests[status.question.testExam.title] = [status] 
+
+            else:
+                 tests[status.question.testExam.title].append(status) 
+
+
+    for status in model_exam_status:
            if status.question.modeExam.title not in models:
                  models[status.question.modeExam.title] = [status]
 
@@ -521,17 +566,10 @@ def myresult(request):
             
                models[status.question.modeExam.title].append(status)
 
-       except Exception as e:
-            if status.question.testExam.title not in tests:
-                 tests[status.question.testExam.title] = [status] 
-
-            else:
-                 tests[status.question.testExam.title].append(status) 
-
     for key,values in models.items():
          for question in values:
              if  key not in model_result:
-                     model_result[key] =[0,len(models[key])] 
+                     model_result[key] =[0, question.question.modeExam.question.all().count()] 
 
              if question.response_status == "correct":
                   model_result[key][0] += 1   
@@ -539,7 +577,7 @@ def myresult(request):
     for key,values in tests.items(): 
          for question in values:
               if key not in test_result:
-                   test_result[key] = [0, len(tests[key])] 
+                   test_result[key] = [0, question.question.testExam.test.all().count()] 
 
               if question.response_status == 'correct':
                    test_result[key][0] += 1

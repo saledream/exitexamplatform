@@ -1,9 +1,5 @@
 
-{% extends 'partials/partial_base.html' %} 
-
-
-
-
+{% block title %}  Exam Result detail   {% endblock %} 
 {% block content %}
          
     <div hx-trigger="load" hx-get="examresult/{{model_id}}" hx-target="#detail"> 

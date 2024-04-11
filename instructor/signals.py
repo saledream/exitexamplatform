@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete 
 from django.dispatch import receiver 
-from .models import CourseProgress, PageCompletion, ExamStatus  
+from .models import CourseProgress, PageCompletion, ModelExamStatus  
 from .models import Page 
 
 
@@ -114,10 +114,12 @@ def calculate_course_progress_percentage(sender, instance, **kwargs):
                                 no_completed_pages_of_course += 1
 
        percentage = (((no_completed_pages_of_course)/no_pages) * 100)
-
-       cp = CourseProgress.objects.get(course=course,student=student) 
-       cp.progress = percentage 
-       cp.save()
+       try:
+            cp = CourseProgress.objects.get(course=course,student=student) 
+            cp.progress = percentage 
+            cp.save()
+       except CourseProgress.DoesNotExist:
+           pass 
        
 @receiver(post_save, sender=PageCompletion) 
 def calculate_course_progress_percentage(sender, instance, created,**kwargs):

@@ -66,8 +66,50 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     completed_course = property(_get_course_progress) 
     
-    
-        
+    def __get_exam_result(self):
+        from instructor.models import ModelExamStatus, TestExamStatus
+        models = {}
+        tests = {}
+        model_result= {}
+        test_result = {}
+
+        model_exam_status = ModelExamStatus.objects.filter(student=self.student)
+        test_exam_status = TestExamStatus.objects.filter(student=self.student)  
+
+        for status in test_exam_status:
+                if status.question.testExam.title not in tests:
+                    tests[status.question.testExam.title] = [status] 
+
+                else:
+                    tests[status.question.testExam.title].append(status) 
+
+
+        for status in model_exam_status:
+            if status.question.modeExam.title not in models:
+                    models[status.question.modeExam.title] = [status]
+
+            else:
+                
+                models[status.question.modeExam.title].append(status)
+
+        for key,values in models.items():
+            for question in values:
+                if  key not in model_result:
+                        model_result[key] =[0, question.question.modeExam.question.all().count()] 
+
+                if question.response_status == "correct":
+                    model_result[key][0] += 1   
+
+        for key,values in tests.items(): 
+            for question in values:
+                if key not in test_result:
+                    test_result[key] = [0, question.question.testExam.test.all().count()] 
+
+                if question.response_status == 'correct':
+                    test_result[key][0] += 1
+
+        return (model_result, test_result)
+            
 class SuperUserForm(ModelForm):
 
     class Meta:

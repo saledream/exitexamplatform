@@ -197,20 +197,11 @@ class TestForm(ModelForm):
 class ExamResult(models.Model):
     
 
-    exam = models.ForeignKey(Exam_Model, on_delete=models.CASCADE, related_name='results') 
+    exam_name = models.CharField(max_length=255)
     score = models.IntegerField(default=0) 
     student = models.ForeignKey(User, on_delete=models.CASCADE,related_name='exam_result')
     exam_type = models.CharField(max_length=20)
     total_mark = models.PositiveIntegerField() 
-
-    def save(self,*args, **kwargs):
-        if self.exam_type == "model":
-            self.total_mark = self.exam.question.all().count() 
-
-        elif self.exam_type == "test":
-             self.total_mark = self.exam.test.all().count() 
-
-        super().save(*args,**kwargs) 
 
 
 class CourseProgress(models.Model):
@@ -253,10 +244,6 @@ class ModelQuestion(models.Model):
           return mark_safe(self.question)
       
       def save(self, *args, **kwargs):
-
-
-        self.question = format_html(self.question) 
-        print(self.question)
 
         self.optionA_slug = slugify(self.optionA) 
         self.optionB_slug = slugify(self.optionB) 
@@ -309,29 +296,23 @@ class TestQuestion(models.Model):
       optionC = models.CharField(max_length=255)
       optionD = models.CharField(max_length=255)
       answer = models.CharField(max_length=255)
-      optionA_slug = models.SlugField(unique=True) 
-      optionB_slug = models.SlugField(unique=True) 
-      optionC_slug = models.SlugField(unique=True) 
-      optionD_slug = models.SlugField(unique=True) 
+      optionA_slug = models.SlugField()
+      optionB_slug = models.SlugField() 
+      optionC_slug = models.SlugField() 
+      optionD_slug = models.SlugField() 
+
       question_type = models.CharField(max_length=255, choices=q_type_opions) 
       ans_description = models.TextField()
    
       def save(self, *args, **kwargs):
             
-            self.question = format_html(self.question)
-            c_time = str(timezone.now()) 
-            self.optionA_slug = slugify(self.optionA + c_time) 
+        self.optionA_slug = slugify(self.optionA) 
+        self.optionB_slug = slugify(self.optionB) 
+        self.optionC_slug = slugify(self.optionC) 
+        self.optionD_slug = slugify(self.optionD) 
 
-            c_time = str(timezone.now()) 
-            self.optionB_slug = slugify(self.optionB + c_time) 
-
-            c_time = str(timezone.now()) 
-            self.optionC_slug = slugify(self.optionC + c_time) 
-
-            c_time = str(timezone.now()) 
-            self.optionD_slug = slugify(self.optionD + c_time) 
-            super().save(*args,**kwargs)
-
+        super().save(*args,**kwargs)
+      
       def __str__(self):
             return mark_safe(self.question)   
     
@@ -364,7 +345,7 @@ class TestQuestion(models.Model):
 
             return mark_safe(text)
 
-class ExamStatus(models.Model):
+class ModelExamStatus(models.Model):
  student = models.ForeignKey(User, on_delete=models.CASCADE,related_name='exam_status') 
  question = models.ForeignKey(ModelQuestion,on_delete=models.CASCADE,related_name='exam_status')
  response = models.CharField(max_length=255)  
@@ -399,6 +380,43 @@ class ExamStatus(models.Model):
         self.category_name = self.question.modeExam.title
      
      super().save(*args,**kwargs)
+
+class TestExamStatus(models.Model):
+ student = models.ForeignKey(User, on_delete=models.CASCADE,related_name='test_exam_status') 
+ question = models.ForeignKey(TestQuestion,on_delete=models.CASCADE,related_name='test_exam_status')
+ response = models.CharField(max_length=255)  
+ response_status = models.CharField(max_length=255) 
+ question_category = models.CharField(max_length=255) 
+ category_name     = models.CharField(max_length=255) 
+ department = models.ForeignKey(Department, on_delete=models.CASCADE,related_name="testexamstatus")
+
+ def __str__(self):
+     return mark_safe(self.question)
+
+ def _get_question(self):
+     return mark_safe(self.question) 
+
+ question_name = property(_get_question)
+
+ def save(self,*args,**kwargs):
+     
+     self.response = self.response.replace("-"," ")
+     self.department = self.student.department 
+     if slugify(self.response) == slugify(self.question.answer):
+         self.response_status = "correct"
+
+     else:
+         self.response_status = "wrong"  
+     
+     try:
+        self.category_name = self.question.testExam.title
+        self.question_category = "test"
+     except AttributeError:
+        self.question_category = 'model' 
+        self.category_name = self.question.modeExam.title
+     
+     super().save(*args,**kwargs)
+
 
 class ModelQuestionForm(ModelForm):
       class Meta:

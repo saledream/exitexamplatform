@@ -24,7 +24,7 @@
     },
 }">
      
-     <form method="post" action="/accounts/profile/{{request.user.username}}/" hx-trigger="submit" hx-post="/accounts/profile/{{request.user.username}}/" hx-target="#submain">
+     <form method="post" enctype="multipart/form-data" action="/accounts/profile/{{request.user.username}}/" hx-trigger="submit" hx-post="/accounts/profile/{{request.user.username}}/" hx-target="#submain">
        <div class="row  d-flex flex-column   mx-auto py-5 my-auto shadow-lg p-3 mb-5 bg-tertiary rounded">
          {% csrf_token %} 
          <div class="mb-3">
