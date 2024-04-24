@@ -78,7 +78,7 @@ def courses(request, status):
           for course in courses:
                try:
                
-                    cp = CourseProgress.objects.get(course=course)
+                    cp = CourseProgress.objects.get(course=course,student=request.user)
                     progress = cp.progress 
 
                except CourseProgress.DoesNotExist:
@@ -90,7 +90,7 @@ def courses(request, status):
           for course in courses:
                try:
                
-                    cp = CourseProgress.objects.get(course=course)
+                    cp = CourseProgress.objects.get(course=course, student=request.user) 
                     if cp.progress > 0:
                          courses_progress.append([course,cp.progress])
 
@@ -142,7 +142,7 @@ def get_page(request,pk):
       try:
          
          page = Page.objects.get(id=pk)
-         completed = PageCompletion.objects.get(page=page) 
+         completed = PageCompletion.objects.get(page=page,student=request.user)  
          completed = True 
 
       except Page.DoesNotExist:
@@ -168,7 +168,7 @@ def page_complete(request,pk,complete):
            if page is not None and complete.lower() == 'true':
                  
                  try:
-                      page_complete = PageCompletion.objects.get(page=page)
+                      page_complete = PageCompletion.objects.get(page=page,student=request.user) 
                       print(page_complete)
                       print(page) 
                       print("-------------------")
@@ -178,7 +178,7 @@ def page_complete(request,pk,complete):
                         print("saved successs!!!!!") 
 
            elif page is not None and complete.lower() == 'false':
-                unmark = PageCompletion.objects.filter(page=page)
+                unmark = PageCompletion.objects.filter(page=page,student=request.user)
                 for page in unmark:
                      page.delete()  
 
@@ -375,9 +375,15 @@ def exam_model_answer(request,model_id,q_id,slug):
         try:
              
           examstatus = ModelExamStatus.objects.get(student=request.user,question=q)
-          examstatus.response = slug
-          examstatus.save() 
-
+          
+          if slug == 'menu':
+               slug = "<menu>"
+               examstatus.response = slug
+               examstatus.save() 
+          else:
+               examstatus.response = slug
+               examstatus.save() 
+               
         except ModelExamStatus.DoesNotExist:
             examstatus = ModelExamStatus(student=request.user,question=q,response = slug)
             examstatus.save() 

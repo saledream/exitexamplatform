@@ -192,7 +192,7 @@ class CourseProgressModelAdmin(admin.ModelAdmin):
           qs = super().get_queryset(request) 
           if request.user.is_superuser:
                return qs
-          return  qs.filter(course=request.user.courses.all()[0]) 
+          return  qs
      
      
      def formfield_for_foreignkey(self, db_field: ForeignKey[Any], request: HttpRequest | None, **kwargs: Any) -> ModelChoiceField | None:
